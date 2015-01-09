@@ -25,7 +25,7 @@ google.devrel.samples.ttt = google.devrel.samples.ttt || {};
  * @type {string}
  */
 google.devrel.samples.ttt.CLIENT_ID =
-    'YOUR-CLIENT-ID';
+    '204881882352-io6rbv0pbucjbi27ee2a7s6l7dj3flfg.apps.googleusercontent.com';
 
 /**
  * Scopes used by the application.
@@ -35,6 +35,12 @@ google.devrel.samples.ttt.SCOPES =
     'https://www.googleapis.com/auth/userinfo.email ' +
     'https://www.googleapis.com/auth/plus.login';
 
+/**
+ * Stored access_token for logout
+ * @type {string}
+ */
+ google.devrel.samples.ttt.TOKEN = '';
+ 
 /**
  * Parses email from the claim set of a JWT ID token.
  *
@@ -81,14 +87,12 @@ google.devrel.samples.ttt.getEmailFromIDToken = function(idToken) {
  *                            Sign In attempt.
  */
 google.devrel.samples.ttt.signinCallback = function(authResult) {
-  var tokenEmail = google.devrel.samples.ttt.getEmailFromIDToken(
-      authResult.id_token);
-  if (authResult.access_token && tokenEmail) {
-    google.devrel.samples.ttt.init('//' + window.location.host + '/_ah/api',
-                                   tokenEmail);
+  var tokenEmail = google.devrel.samples.ttt.getEmailFromIDToken(authResult.id_token);
 
-    document.getElementById('signinButtonContainer').classList.remove(
-        'visible');
+  if (authResult.access_token && tokenEmail) {
+    google.devrel.samples.ttt.init('//' + window.location.host + '/_ah/api', tokenEmail);
+    google.devrel.samples.ttt.TOKEN = authResult.access_token;
+    document.getElementById('signinButtonContainer').classList.remove('visible');
     document.getElementById('signedInStatus').classList.add('visible');
   } else {
     document.getElementById('signinButtonContainer').classList.add('visible');
@@ -104,6 +108,18 @@ google.devrel.samples.ttt.signinCallback = function(authResult) {
     }
   }
 };
+
+/**
+ * Handles the Google+ Sign Out process
+ */
+google.devrel.samples.ttt.disconnectUser = function() {
+  var revokeUrl = 'https://accounts.google.com/o/oauth2/revoke?token=' + google.devrel.samples.ttt.TOKEN;
+  var xmlhttp = new XMLHttpRequest();
+  
+  // Perform an asynchronous GET request.
+  xmlhttp.open("GET", revokeUrl, false);
+  xmlhttp.send();
+}
 
 /**
  * Renders the Google+ Sign-in button using auth parameters.
@@ -126,9 +142,7 @@ window['google.devrel.samples.ttt.render'] = google.devrel.samples.ttt.render;
   var newScriptElement = document.createElement('script');
   newScriptElement.type = 'text/javascript';
   newScriptElement.async = true;
-  newScriptElement.src = 'https://apis.google.com/js/client:plusone.js' +
-                         '?onload=google.devrel.samples.ttt.render';
+  newScriptElement.src = 'https://apis.google.com/js/client:plusone.js' + '?onload=google.devrel.samples.ttt.render';
   var firstScriptElement = document.getElementsByTagName('script')[0];
-  firstScriptElement.parentNode.insertBefore(newScriptElement,
-                                             firstScriptElement);
+  firstScriptElement.parentNode.insertBefore(newScriptElement, firstScriptElement);
 })();

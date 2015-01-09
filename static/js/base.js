@@ -73,8 +73,10 @@ google.devrel.samples.ttt.waitingForMove = true;
 google.devrel.samples.ttt.signout = function() {
   document.getElementById('signinButtonContainer').classList.add('visible');
   document.getElementById('signedInStatus').classList.remove('visible');
+  document.getElementById('userLabel').innerHTML = '(not signed in)';
   google.devrel.samples.ttt.setBoardEnablement(false);
   google.devrel.samples.ttt.signedIn = false;
+  google.devrel.samples.ttt.disconnectUser();
 }
 
 /**
